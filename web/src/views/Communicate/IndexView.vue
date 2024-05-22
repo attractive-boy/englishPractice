@@ -25,6 +25,18 @@
         <el-button type="primary" @click="confirmSelection">确认</el-button>
       </span>
     </el-dialog>
+
+
+    <vue-advanced-chat
+      height="75vh"
+      :current-user-id="currentUserId"
+      :rooms="rooms"
+      :rooms-loaded="true"
+      :messages="messages"
+      :messages-loaded="messagesLoaded"
+      @send-message="sendMessage"
+      @fetch-messages="fetchMessages"
+    />
   </div>
 </template>
 
@@ -33,6 +45,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 
 import { getCurrentInstance } from 'vue';
+import { register } from 'vue-advanced-chat'
 
 
 const { proxy } = getCurrentInstance() as any;
@@ -89,6 +102,80 @@ const confirmSelection = () => {
 onMounted(() => {
   fetchScenes();
 });
+
+
+
+register();
+const currentUserId = ref('1234');
+const rooms = ref([
+  {
+    roomId: '1',
+    roomName: 'Room 1',
+    avatar: 'https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj',
+    users: [
+      { _id: '1234', username: 'John Doe' },
+      { _id: '4321', username: 'John Snow' }
+    ]
+  }
+]);
+const messages = ref<any[]>([]);
+const messagesLoaded = ref(false);
+
+const fetchMessages = ({ detail: [{ options = {} }] }: any) => {
+  setTimeout(() => {
+    if (options.reset) {
+      messages.value = addMessages(true);
+    } else {
+      messages.value = [...addMessages(), ...messages.value];
+      messagesLoaded.value = true;
+    }
+  });
+};
+
+const addMessages = (reset = false) => {
+  const newMessages = [];
+
+  for (let i = 0; i < 30; i++) {
+    newMessages.push({
+      _id: reset ? i : messages.value.length + i,
+      content: `${reset ? '' : 'paginated'} message ${i + 1}`,
+      senderId: '4321',
+      username: 'John Doe',
+      date: '13 November',
+      timestamp: '10:20'
+    });
+  }
+
+  return newMessages;
+};
+
+const sendMessage = ({ detail: [message] }: any) => {
+  messages.value = [
+    ...messages.value,
+    {
+      _id: messages.value.length,
+      content: message.content,
+      senderId: currentUserId.value,
+      timestamp: new Date().toString().substring(16, 21),
+      date: new Date().toDateString()
+    }
+  ];
+};
+
+const addNewMessage = () => {
+  setTimeout(() => {
+    messages.value = [
+      ...messages.value,
+      {
+        _id: messages.value.length,
+        content: 'NEW MESSAGE',
+        senderId: '1234',
+        timestamp: new Date().toString().substring(16, 21),
+        date: new Date().toDateString()
+      }
+    ];
+  }, 2000);
+};
 </script>
 
 <style scoped>
