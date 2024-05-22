@@ -38,7 +38,7 @@
 
         <!-- 修改密码弹窗 -->
         <el-dialog v-model="passwordDialogVisible" title="修改密码">
-            <el-form :model="passwordForm" ref="passwordForm" label-width="120px">
+            <el-form :model="passwordForm" ref="password" label-width="120px">
                 <el-form-item label="当前密码" prop="current_password">
                     <el-input type="password" v-model="passwordForm.current_password" placeholder="请输入当前密码"></el-input>
                 </el-form-item>

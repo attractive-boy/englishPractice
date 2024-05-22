@@ -89,6 +89,16 @@ class Scenario(db.Model):
     difficulty = db.Column(db.Enum('CET4', 'CET6', 'IELTS', 'TOEFL'))
     description = db.Column(db.Text)
     status = db.Column(db.Enum('public', 'private'), default='public')
+    
+    def to_dict(self):
+        return {
+            'scenario_id': self.scenario_id,
+            'name': self.name,
+            'prompt': self.prompt,
+            'difficulty': self.difficulty,
+            'description': self.description,
+            'status': self.status
+        }
 
 class StudentStudyRecord(db.Model):
     __tablename__ = 'student_study_records'

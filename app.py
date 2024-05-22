@@ -18,7 +18,7 @@ CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://l
 # Session configuration
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_COOKIE_HTTPONLY'] = False
-app.config['SESSION_COOKIE_SECURE'] = False  # Use True in production
+app.config['SESSION_COOKIE_SECURE'] = True 
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Enable cross-site cookies
 
 Session(app)

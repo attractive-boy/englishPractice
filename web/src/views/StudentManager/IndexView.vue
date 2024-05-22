@@ -41,7 +41,7 @@
         <el-form-item label="专业">
           <el-input v-model="newStudent.major"></el-input>
         </el-form-item>
-        <el-form-item label="班级">
+        <el-form-item label="班级" v-if="role == 'admin'">
           <el-input v-model="newStudent.class_name"></el-input>
         </el-form-item>
         <el-form-item label="电话">
@@ -71,7 +71,7 @@
         <el-form-item label="专业">
           <el-input v-model="currentStudent.major"></el-input>
         </el-form-item>
-        <el-form-item label="班级">
+        <el-form-item label="班级" v-if="role == 'admin'">
           <el-input v-model="currentStudent.class_name"></el-input>
         </el-form-item>
         <el-form-item label="电话">
@@ -111,6 +111,7 @@ const newStudent = ref({
 const currentStudent = ref({});
 const addStudentDialogVisible = ref(false);
 const editStudentDialogVisible = ref(false);
+const role = localStorage.getItem('role')
 
 const fetchStudents = async () => {
   try {
