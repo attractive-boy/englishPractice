@@ -8,7 +8,7 @@ axios.defaults.withCredentials=true
 
 const axiosInstance = axios.create({
   baseURL: baseURL, // 设置统一的基础 URL
-  timeout: 5000, // 设置请求超时时间
+  timeout: 9999999, // 设置请求超时时间
   withCredentials: true, // 允许携带 cookie
 })
 

@@ -1,5 +1,3 @@
-# models.py
-
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 
@@ -124,3 +122,32 @@ class TextScore(db.Model):
     text_structure = db.Column(db.Float)
     reader_background_knowledge = db.Column(db.Float)
     score_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+class ChatMessage(db.Model):
+    __tablename__ = 'chat_messages'
+    
+    message_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    scenario_id = db.Column(db.Integer, db.ForeignKey('scenarios.scenario_id'), nullable=False)
+    difficulty = db.Column(db.String(50))
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    conversation_id = db.Column(db.String(50), nullable=False)
+    is_user = db.Column(db.Boolean, nullable=False)  # New column to indicate if the message is from the user or AI
+    
+    user = db.relationship('User', backref=db.backref('messages', lazy=True))
+    scenario = db.relationship('Scenario', backref=db.backref('messages', lazy=True))
+    
+    def to_dict(self):
+        return {
+            'message_id': self.message_id,
+            'user_id': self.user_id,
+            'username': self.user.username,
+            'scenario_id': self.scenario_id,
+            'scenario_name': self.scenario.name,
+            'difficulty': self.difficulty,
+            'content': self.content,
+            'timestamp': self.timestamp,
+            'conversation_id': self.conversation_id,
+            'is_user': self.is_user
+        }

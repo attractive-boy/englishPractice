@@ -16,7 +16,7 @@ def login():
     if user and check_password_hash(user.password, password):
         session['user_id'] = user.user_id
         session['role'] = user.role
-        response = jsonify({'message': 'Login successful', 'role': user.role})
+        response = jsonify({'message': 'Login successful', 'role': user.role, 'user_id': user.user_id, 'username': user.username})
         return response
     return jsonify({'message': 'Invalid credentials'}), 401
 

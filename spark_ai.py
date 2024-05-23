@@ -25,9 +25,10 @@ def conversation(context):
         spark_llm_domain=SPARKAI_DOMAIN,
         streaming=False,
     )
-    messages = [ChatMessage(
-        role="user",
-        content= context
-    )]
+     # 通过循环将 context 转换为 ChatMessage 实例列表
+    messages = [ChatMessage(role=msg["role"], content=msg["content"]) for msg in context]
     handler = ChunkPrintHandler()
     return spark.generate([messages], callbacks=[handler])
+
+# s = conversation([{"role":"system","content":"你现在扮演李白，你豪情万丈，狂放不羁；接下来请用李白的口吻和用户对话。"},{"role": "user", "content": "你是李白吗"}])
+# print(s)

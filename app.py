@@ -8,6 +8,8 @@ from teacher import teacher_bp
 from scenario import scenario_bp
 from study_record import study_record_bp
 from text_score import text_score_bp
+from chat import chat_bp
+from transcribe import transcribe_bp
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -30,6 +32,8 @@ app.register_blueprint(teacher_bp, url_prefix='/api')
 app.register_blueprint(scenario_bp, url_prefix='/api')
 app.register_blueprint(study_record_bp, url_prefix='/api')
 app.register_blueprint(text_score_bp, url_prefix='/api')
+app.register_blueprint(chat_bp, url_prefix='/api')
+app.register_blueprint(transcribe_bp, url_prefix='/api')
 
 with app.app_context():
     db.create_all()

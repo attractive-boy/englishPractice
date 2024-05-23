@@ -4,12 +4,8 @@
       <div class="scene-selection">
         <h3>选择场景</h3>
         <div class="cards">
-          <el-card 
-            v-for="scene in scenes" 
-            :key="scene.name" 
-            class="card" 
-            :class="{ selected: scene.name === selectedScene.name }" 
-            @click="selectScene(scene)">
+          <el-card v-for="scene in scenes" :key="scene.name" class="card"
+            :class="{ selected: scene.name === selectedScene.name }" @click="selectScene(scene)">
             <h4>{{ scene.name }}</h4>
           </el-card>
         </div>
@@ -17,8 +13,16 @@
       <div class="difficulty-selection" v-if="selectedScene.difficulties && selectedScene.difficulties.length > 0">
         <h3>选择难度</h3>
         <el-select v-model="selectedDifficulty" placeholder="请选择难度" style="width: 100%">
-          <el-option v-for="difficulty in selectedScene.difficulties" :key="difficulty" :label="difficulty" :value="difficulty"></el-option>
+          <el-option v-for="difficulty in selectedScene.difficulties" :key="difficulty" :label="difficulty"
+            :value="difficulty"></el-option>
         </el-select>
+      </div>
+      <div class="text-display-selection">
+        <h3>是否显示文字</h3>
+        <el-radio-group v-model="showText">
+          <el-radio :label="true">是</el-radio>
+          <el-radio :label="false">否</el-radio>
+        </el-radio-group>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -26,17 +30,7 @@
       </span>
     </el-dialog>
 
-
-    <vue-advanced-chat
-      height="75vh"
-      :current-user-id="currentUserId"
-      :rooms="rooms"
-      :rooms-loaded="true"
-      :messages="messages"
-      :messages-loaded="messagesLoaded"
-      @send-message="sendMessage"
-      @fetch-messages="fetchMessages"
-    />
+    <Chat :selectedScene="selectedScene" :selectedDifficulty="selectedDifficulty" :showText="showText" />
   </div>
 </template>
 
@@ -45,15 +39,14 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 
 import { getCurrentInstance } from 'vue';
-import { register } from 'vue-advanced-chat'
-
+import Chat from '@/components/Chat/Chat.vue'
 
 const { proxy } = getCurrentInstance() as any;
-
 
 const dialogVisible = ref(true);
 const selectedScene = ref<any>({});
 const selectedDifficulty = ref('');
+const showText = ref(true); // 添加是否显示文字的单选框的绑定变量
 const scenes = ref([]);
 
 const fetchScenes = async () => {
@@ -102,88 +95,15 @@ const confirmSelection = () => {
 onMounted(() => {
   fetchScenes();
 });
-
-
-
-register();
-const currentUserId = ref('1234');
-const rooms = ref([
-  {
-    roomId: '1',
-    roomName: 'Room 1',
-    avatar: 'https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj',
-    users: [
-      { _id: '1234', username: 'John Doe' },
-      { _id: '4321', username: 'John Snow' }
-    ]
-  }
-]);
-const messages = ref<any[]>([]);
-const messagesLoaded = ref(false);
-
-const fetchMessages = ({ detail: [{ options = {} }] }: any) => {
-  setTimeout(() => {
-    if (options.reset) {
-      messages.value = addMessages(true);
-    } else {
-      messages.value = [...addMessages(), ...messages.value];
-      messagesLoaded.value = true;
-    }
-  });
-};
-
-const addMessages = (reset = false) => {
-  const newMessages = [];
-
-  for (let i = 0; i < 30; i++) {
-    newMessages.push({
-      _id: reset ? i : messages.value.length + i,
-      content: `${reset ? '' : 'paginated'} message ${i + 1}`,
-      senderId: '4321',
-      username: 'John Doe',
-      date: '13 November',
-      timestamp: '10:20'
-    });
-  }
-
-  return newMessages;
-};
-
-const sendMessage = ({ detail: [message] }: any) => {
-  messages.value = [
-    ...messages.value,
-    {
-      _id: messages.value.length,
-      content: message.content,
-      senderId: currentUserId.value,
-      timestamp: new Date().toString().substring(16, 21),
-      date: new Date().toDateString()
-    }
-  ];
-};
-
-const addNewMessage = () => {
-  setTimeout(() => {
-    messages.value = [
-      ...messages.value,
-      {
-        _id: messages.value.length,
-        content: 'NEW MESSAGE',
-        senderId: '1234',
-        timestamp: new Date().toString().substring(16, 21),
-        date: new Date().toDateString()
-      }
-    ];
-  }, 2000);
-};
 </script>
-
 <style scoped>
 .container {
   padding: 20px;
 }
 
-.scene-selection, .difficulty-selection {
+.scene-selection,
+.difficulty-selection,
+.text-display-selection {
   margin-bottom: 20px;
 }
 
@@ -208,7 +128,8 @@ const addNewMessage = () => {
   text-align: right;
 }
 
-.el-select {
+.el-select,
+.el-radio-group {
   width: 100%;
 }
 </style>
