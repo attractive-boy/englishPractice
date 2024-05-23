@@ -23,8 +23,11 @@ load_dotenv()
 
 
 
-
-
+# 1、用户参数，相关参数注意修改
+HOST = "api-dx.xf-yun.com"
+APP_ID = os.getenv('TEXT_TO_VOICE_API_ID', '')
+API_KEY = os.getenv('TEXT_TO_VOICE_API_KEY', '')
+API_SECRET = os.getenv('TEXT_TO_VOICE_API_SECRET', '')
 
 class TestTask():
 
@@ -204,11 +207,7 @@ def do_query(task_id):
 
 
 def text_to_voice(text):
-    # 1、用户参数，相关参数注意修改
-    HOST = "api-dx.xf-yun.com"
-    APP_ID = os.getenv('TEXT_TO_VOICE_API_ID', '')
-    API_KEY = os.getenv('TEXT_TO_VOICE_API_KEY', '')
-    API_SECRET = os.getenv('TEXT_TO_VOICE_API_SECRET', '')
+
 
     task_id = do_create(text)
 
@@ -219,10 +218,4 @@ def text_to_voice(text):
 
     # 4、下载到本地
     Download_addres = query_result
-    f = requests.get(Download_addres)
-    # 下载文件，根据需要更改文件后缀
-    filename = "tts.mp3"
-    with open(filename, "wb") as code:
-        code.write(f.content)
-    if filename:
-        print("\n音频保存成功！")
+    return Download_addres

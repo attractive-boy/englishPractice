@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify, session
-from models import Scenario, db, ChatMessage
+from models import Scenario, StudentStudyRecord, db, ChatMessage
 from spark_ai import conversation
 from uuid import uuid4
 
@@ -66,6 +67,37 @@ def add_message():
     
     # 添加AI的响应到数据库并提交
     db.session.add(ai_message)
+    db.session.commit()
+
+    # 插入或更新 StudentStudyRecord 数据
+    study_date = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ').date()
+    start_time = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ').time()
+    end_time = datetime.utcnow().time()
+
+    # 查找是否已经存在相同日期和场景的记录
+    study_record = StudentStudyRecord.query.filter_by(
+        student_id=user_id,
+        scenario_id=scenario.scenario_id,
+        study_date=study_date
+    ).first()
+
+    if study_record:
+        # 如果记录存在，则只更新结束时间和学习时长
+        study_record.end_time = end_time
+        study_record.duration_minutes += (datetime.combine(study_date, end_time) - datetime.combine(study_date, study_record.start_time)).seconds // 60
+    else:
+        # 如果记录不存在，则创建新的记录
+        duration_minutes = (datetime.combine(study_date, end_time) - datetime.combine(study_date, start_time)).seconds // 60
+        study_record = StudentStudyRecord(
+            student_id=user_id,
+            scenario_id=scenario.scenario_id,
+            study_date=study_date,
+            start_time=start_time,
+            end_time=end_time,
+            duration_minutes=duration_minutes
+        )
+        db.session.add(study_record)
+    
     db.session.commit()
 
     return jsonify({

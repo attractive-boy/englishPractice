@@ -1,11 +1,12 @@
 <template>
     <div>
         <vue-advanced-chat height="75vh" :current-user-id="currentUserId" :rooms="JSON.stringify(rooms)"
-            :rooms-loaded="true" :messages="JSON.stringify(messages)" :messages-loaded="messagesLoaded" :single-room="true"
-            @send-message="sendMessage($event.detail[0])" @fetch-messages="fetchMessages($event.detail[0])" />
+            :rooms-loaded="true" :messages="JSON.stringify(messages)" :messages-loaded="messagesLoaded"
+            :single-room="true" @send-message="sendMessage($event.detail[0])"
+            @fetch-messages="fetchMessages($event.detail[0])" />
     </div>
 </template>
-  
+
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { register } from 'vue-advanced-chat';
@@ -76,14 +77,35 @@ const sendMessage = (message) => {
                     selectedScene: props.selectedScene,
                     selectedDifficulty: props.selectedDifficulty
                 };
-                proxy.$http.post('/messages', aiPayload)
-                    .then((aiResponse) => {
-                        const aiMessage = transformMessage(aiResponse.data.ai_message);
-                        // 传递到后台 获取音频
 
-                        if (prop.showText) {
-                            messages.value = [...messages.value, aiMessage];
-                        }
+                proxy.$http.post('/messages', aiPayload)
+                    .then((response) => {
+                        const audioMessage = transformMessage(response.data.ai_message);
+                        const textMessage = JSON.parse(JSON.stringify(audioMessage))
+                        // 传递到后台 获取音频
+                        // Fetch audio from the backend
+                        proxy.$http.post('/transcribeToVoice', { text: audioMessage.content })
+                            .then((audioResponse) => {
+                                const audioUrl = audioResponse.data.audio_url;
+                                audioMessage.files = [{
+                                    name: 'Audio Message',
+                                    size: 0,
+                                    type: 'audio/mpeg',
+                                    audio: true,
+                                    duration: 0, // Optionally set duration if available
+                                    url: audioUrl,
+                                    preview: '',
+                                    progress: 100
+                                }];
+                                messages.value = [...messages.value, audioMessage];
+
+                                if (props.showText) {
+                                    messages.value = [...messages.value, textMessage];
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching audio:', error);
+                            });
                     })
                     .catch((error) => {
                         console.error('Error sending AI message:', error);
@@ -95,12 +117,34 @@ const sendMessage = (message) => {
     } else {
         proxy.$http.post('/messages', payload)
             .then((response) => {
-                const newMessage = transformMessage(response.data.ai_message);
+                const audioMessage = transformMessage(response.data.ai_message);
+                const textMessage = JSON.parse(JSON.stringify(audioMessage))
                 // 传递到后台 获取音频
+                // Fetch audio from the backend
+                proxy.$http.post('/transcribeToVoice', { text: audioMessage.content })
+                    .then((audioResponse) => {
+                        const audioUrl = audioResponse.data.audio_url;
+                        audioMessage.files = [{
+                            name: 'Audio Message',
+                            size: 0,
+                            type: 'audio/mpeg',
+                            audio: true,
+                            duration: 0, // Optionally set duration if available
+                            url: audioUrl,
+                            preview: '',
+                            progress: 100
+                        }];
+                        messages.value = [...messages.value, audioMessage];
 
-                if (prop.showText) {
-                    messages.value = [...messages.value, aiMessage];
-                }
+                        if (props.showText) {
+                            messages.value = [...messages.value, textMessage];
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching audio:', error);
+                    });
+
+
             })
             .catch((error) => {
                 console.error('Error sending message:', error);
@@ -160,6 +204,5 @@ onMounted(() => {
 
 
 </script>
-  
+
 <style scoped></style>
-  

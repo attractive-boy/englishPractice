@@ -39,16 +39,14 @@ def transcribe_audio():
 
 @transcribe_bp.route('/transcribeToVoice', methods=['POST'])
 def transcribe():
-    if 'text' not in request.form:
+    if 'text' not in request.json:
         return jsonify({"error": "No text provided"}), 400
     
-    text = request.form['text']
-    
+    text = request.json['text']
+    url = text_to_voice(text)
     try:
-        audio_data = text_to_voice(text)
-        file_path = "output_audio.mp3"
-        with open(file_path, "wb") as audio_file:
-            audio_file.write(audio_data)
-        return send_file(file_path, mimetype='audio/mpeg', as_attachment=True, attachment_filename='output_audio.mp3')
+        if isinstance(url, bytes):
+            url = url.decode('utf-8')
+        return jsonify({"audio_url": url}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

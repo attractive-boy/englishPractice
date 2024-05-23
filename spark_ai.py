@@ -1,3 +1,4 @@
+import json
 from sparkai.llm.llm import ChatSparkLLM, ChunkPrintHandler
 from sparkai.core.messages import ChatMessage
 
@@ -30,5 +31,42 @@ def conversation(context):
     handler = ChunkPrintHandler()
     return spark.generate([messages], callbacks=[handler])
 
-# s = conversation([{"role":"system","content":"你现在扮演李白，你豪情万丈，狂放不羁；接下来请用李白的口吻和用户对话。"},{"role": "user", "content": "你是李白吗"}])
-# print(s)
+    
+def get_scores_from_spark_api(conversations):
+    # 定义提示，要求严格输出格式
+    prompt = (
+        "请根据以下五个维度对对话进行评分，并给出每个维度的评分(1到10分):\n"
+        "1. 词汇难度: 使用复杂和多样词汇的程度\n"
+        "2. 句法复杂度: 综合使用T-单位(T-unit)计数从句密度，文本长度，依赖关系长度等\n"
+        "3. 可读性公式: 通过SMOG指数、Flesch-kincaid等级等方式评估文本的可读性\n"
+        "4. 文本结构: 文本组织的逻辑性和清晰度\n"
+        "5. 读者背景知识: 读者的背景知识对文本理解的影响\n\n"
+        "请严格按照以下JSON格式输出，不要包含其他信息:\n"
+        "{\n"
+        "  \"lexical_difficulty_score\": <1到10的评分>,\n"
+        "  \"syntactic_complexity_score\": <1到10的评分>,\n"
+        "  \"readability_formula_score\": <1到10的评分>,\n"
+        "  \"text_structure_score\": <1到10的评分>,\n"
+        "  \"reader_background_knowledge_score\": <1到10的评分>\n"
+        "}"
+    )
+    
+    # 将多个对话内容添加到上下文中
+    context = [{"role": "system", "content": prompt}]
+    for convo in conversations:
+        context.append({"role": convo['role'], "content": convo['content']})
+
+    response = conversation(context)
+    # 假设 response 返回的格式严格是一个 JSON 字符串
+    scores_text = response.generations[0][0].text.strip()
+    
+    # 解析评分结果，假设返回结果是一个 JSON 字符串
+    scores = json.loads(scores_text)
+    
+    return {
+        'lexical_difficulty_score': scores.get('lexical_difficulty_score'),
+        'syntactic_complexity_score': scores.get('syntactic_complexity_score'),
+        'readability_formula_score': scores.get('readability_formula_score'),
+        'text_structure_score': scores.get('text_structure_score'),
+        'reader_background_knowledge_score': scores.get('reader_background_knowledge_score')
+    }
