@@ -1,153 +1,133 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
+from . import db
+from flask_login import UserMixin
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
-db = SQLAlchemy(app)
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
+    date_of_birth = db.Column(db.Date)
+    phone_number = db.Column(db.String(20))
+    address = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    last_login = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
+    avatar_url = db.Column(db.String(255))
+    bio = db.Column(db.Text)
+    role = db.Column(db.Enum('user', 'admin', name='user_roles'), default='user')
 
-class User(db.Model):
-    __tablename__ = 'users'
-    
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(50), nullable=False, unique=True)
-    password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.Enum('student', 'teacher', 'admin'), nullable=False)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'date_of_birth': self.date_of_birth,
+            'phone_number': self.phone_number,
+            'address': self.address,
+            'created_at': self.created_at,
+            'last_login': self.last_login,
+            'is_active': self.is_active,
+            'avatar_url': self.avatar_url,
+            'bio': self.bio,
+            'role': self.role
+        }
+
+class ChatRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-
-class Student(db.Model):
-    __tablename__ = 'students'
-    
-    student_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    gender = db.Column(db.Enum('male', 'female', 'other'))
-    college = db.Column(db.String(100))
-    major = db.Column(db.String(100))
-    class_name = db.Column(db.String(50))
-    phone = db.Column(db.String(20))
-    email = db.Column(db.String(100))
+    is_resolved = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
         return {
-            'student_id': self.student_id,
+            'id': self.id,
             'user_id': self.user_id,
-            'name': self.name,
-            'gender': self.gender,
-            'college': self.college,
-            'major': self.major,
-            'class_name': self.class_name,
-            'phone': self.phone,
-            'email': self.email
+            'question': self.question,
+            'answer': self.answer,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'is_resolved': self.is_resolved
         }
 
-class Teacher(db.Model):
-    __tablename__ = 'teachers'
-    
-    teacher_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    gender = db.Column(db.Enum('male', 'female', 'other'))
-    college = db.Column(db.String(100))
-    teacher_number = db.Column(db.String(50))
-    phone = db.Column(db.String(20))
-    email = db.Column(db.String(100))
-    class_responsible = db.Column(db.String(50))
-
-    user = db.relationship('User', backref=db.backref('teacher', uselist=False))
-    def to_dict(self):
-        return {
-            'teacher_id': self.teacher_id,
-            'user_id': self.user_id,
-            'username': self.user.username,
-            'name': self.name,
-            'gender': self.gender,
-            'college': self.college,
-            'teacher_number': self.teacher_number,
-            'phone': self.phone,
-            'email': self.email,
-            'class_responsible': self.class_responsible
-        }
-
-class Admin(db.Model):
-    __tablename__ = 'admins'
-    
-    admin_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-    phone = db.Column(db.String(20))
-    email = db.Column(db.String(100))
-
-class Scenario(db.Model):
-    __tablename__ = 'scenarios'
-    
-    scenario_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100), nullable=False)
-    prompt = db.Column(db.Text)
-    difficulty = db.Column(db.Enum('CET4', 'CET6', 'IELTS', 'TOEFL'))
-    description = db.Column(db.Text)
-    status = db.Column(db.Enum('public', 'private'), default='public')
-    
-    def to_dict(self):
-        return {
-            'scenario_id': self.scenario_id,
-            'name': self.name,
-            'prompt': self.prompt,
-            'difficulty': self.difficulty,
-            'description': self.description,
-            'status': self.status
-        }
-
-class StudentStudyRecord(db.Model):
-    __tablename__ = 'student_study_records'
-    
-    record_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.student_id'), nullable=False)
-    scenario_id = db.Column(db.Integer, db.ForeignKey('scenarios.scenario_id'), nullable=False)
-    study_date = db.Column(db.Date, nullable=False)
-    duration_minutes = db.Column(db.Integer, nullable=False)
-    score = db.Column(db.Float)
-
-class TextScore(db.Model):
-    __tablename__ = 'text_scores'
-    
-    score_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.student_id'), nullable=False)
-    text = db.Column(db.Text, nullable=False)
-    overall_difficulty = db.Column(db.String(50))
-    overall_score = db.Column(db.Float)
-    vocabulary_difficulty = db.Column(db.Float)
-    syntactic_complexity = db.Column(db.Float)
-    readability_formula = db.Column(db.Float)
-    text_structure = db.Column(db.Float)
-    reader_background_knowledge = db.Column(db.Float)
-    score_date = db.Column(db.DateTime, default=db.func.current_timestamp())
-
-class ChatMessage(db.Model):
-    __tablename__ = 'chat_messages'
-    
-    message_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    scenario_id = db.Column(db.Integer, db.ForeignKey('scenarios.scenario_id'), nullable=False)
-    difficulty = db.Column(db.String(50))
+class Plan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
-    conversation_id = db.Column(db.String(50), nullable=False)
-    is_user = db.Column(db.Boolean, nullable=False)  # New column to indicate if the message is from the user or AI
-    
-    user = db.relationship('User', backref=db.backref('messages', lazy=True))
-    scenario = db.relationship('Scenario', backref=db.backref('messages', lazy=True))
-    
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    status = db.Column(db.Enum('active', 'completed', 'canceled', name='plan_status'), default='active')
+    priority = db.Column(db.Integer, default=0)
+    is_public = db.Column(db.Boolean, default=False)
+    category = db.Column(db.String(50))
+
     def to_dict(self):
         return {
-            'message_id': self.message_id,
+            'id': self.id,
             'user_id': self.user_id,
-            'username': self.user.username,
-            'scenario_id': self.scenario_id,
-            'scenario_name': self.scenario.name,
-            'difficulty': self.difficulty,
             'content': self.content,
-            'timestamp': self.timestamp,
-            'conversation_id': self.conversation_id,
-            'is_user': self.is_user
+            'created_at': self.created_at,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'status': self.status,
+            'priority': self.priority,
+            'is_public': self.is_public,
+            'category': self.category
+        }
+
+class LearningReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'content': self.content,
+            'created_at': self.created_at
+        }
+
+class APICallLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    api_response = db.Column(db.Text, nullable=False)
+    call_time = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'question': self.question,
+            'api_response': self.api_response,
+            'call_time': self.call_time
+        }
+
+class Role(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    role_name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'role_name': self.role_name
+        }
+
+class UserRole(db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), primary_key=True)
+
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'role_id': self.role_id
         }
