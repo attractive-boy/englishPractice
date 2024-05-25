@@ -1,7 +1,7 @@
 # student.py
 
 from flask import Blueprint, request, jsonify, session
-from models import Teacher, db, Student, User
+from models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
 
 student_bp = Blueprint('student', __name__)
