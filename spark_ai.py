@@ -52,10 +52,10 @@ def get_scores_from_spark_api(conversations):
     )
     
     # 将多个对话内容添加到上下文中
-    context = [{"role": "system", "content": prompt}]
+    context = []
     for convo in conversations:
         context.append({"role": convo['role'], "content": convo['content']})
-
+    context.append({"role": 'user', "content": prompt})
     response = conversation(context)
     # 假设 response 返回的格式严格是一个 JSON 字符串
     scores_text = response.generations[0][0].text.strip()

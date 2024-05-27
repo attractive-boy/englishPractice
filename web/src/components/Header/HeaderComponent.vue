@@ -11,15 +11,15 @@
     </el-menu>
   </div>
 </template>
+
 <script setup lang="ts">
+import { ref, shallowRef, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { ref, shallowRef, onBeforeUnmount, defineEmits, watch, getCurrentInstance } from 'vue'
-
-import { router } from '@/router/index'
-const role = localStorage.getItem('role')
-const title = ref( role == 'student' ? '英语练习平台' : '英语练习管理系统' )
-
-const activeIndex = ref( role == 'student' ? '英语练习平台' : '/StudentManager' )
+const router = useRouter()
+const role = ref(localStorage.getItem('role'))
+const title = ref(role.value === 'student' ? '英语练习平台' : '英语练习管理系统')
+const activeIndex = ref(role.value === 'student' ? '英语练习平台' : '/StudentManager')
 
 watch(
   () => router.currentRoute.value.path,
@@ -29,22 +29,36 @@ watch(
   { immediate: true, deep: true }
 )
 
-const handleSelect = (key: string, keyPath: string[]) => {
+const handleSelect = (key: string) => {
   router.push(key)
 }
 
-let routes: any
+const routes = ref([])
 
 const changeRoute = () => {
-  routes = router.getRoutes().filter((route: any) => {
-    return route.meta && route.meta.title && route.meta.role.includes(role)
+  routes.value = router.getRoutes().filter((route: any) => {
+    return route.meta && route.meta.title && route.meta.role.includes(role.value)
   })
 
-  routes = routes.sort((a: { meta: { orderNum: number; }; }, b: { meta: { orderNum: number; }; }) => {
+  routes.value = routes.value.sort((a: { meta: { orderNum: number } }, b: { meta: { orderNum: number } }) => {
     return a.meta.orderNum - b.meta.orderNum
   })
 }
-changeRoute()
+
+const handleStorageChange = (event: StorageEvent) => {
+  if (event.key === 'role') {
+    role.value = localStorage.getItem('role')
+    title.value = role.value === 'student' ? '英语练习平台' : '英语练习管理系统'
+    activeIndex.value = role.value === 'student' ? '英语练习平台' : '/StudentManager'
+    changeRoute()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('storage', handleStorageChange)
+  changeRoute()
+})
+
 </script>
 
 <style scoped>

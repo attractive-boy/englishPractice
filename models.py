@@ -123,9 +123,9 @@ class StudentStudyRecord(db.Model):
             'record_id': self.record_id,
             'student_id': self.student_id,
             'scenario_id': self.scenario_id,
-            'study_date': self.study_date.isoformat(),
-            'start_time': self.start_time.isoformat(),
-            'end_time': self.end_time.isoformat(),
+            'study_date': self.study_date.isoformat() if self.study_date else '0',
+            'start_time': self.start_time.isoformat() if self.start_time else '0',
+            'end_time': self.end_time.isoformat() if self.end_time else '0',
             'duration_minutes': self.duration_minutes,
             'score': self.score,
             'lexical_difficulty_score': self.lexical_difficulty_score,
@@ -133,7 +133,7 @@ class StudentStudyRecord(db.Model):
             'readability_formula_score': self.readability_formula_score,
             'text_structure_score': self.text_structure_score,
             'reader_background_knowledge_score': self.reader_background_knowledge_score,
-            'scenario_name': self.scenario.scenario_name  # Assuming Scenario model has a scenario_name attribute
+            'scenario_name':   self.scenario.name if self.scenario else '' # Assuming Scenario model has a scenario_name attribute
         }
 
 class TextScore(db.Model):

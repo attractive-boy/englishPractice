@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session
-from models import Scenario, StudentStudyRecord, db, ChatMessage
+from models import Scenario, Student, StudentStudyRecord, db, ChatMessage
 from spark_ai import conversation
 from uuid import uuid4
 
@@ -74,9 +74,18 @@ def add_message():
     start_time = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ').time()
     end_time = datetime.utcnow().time()
 
+
+    # Fetch the student_id using user_id
+    student = Student.query.filter_by(user_id=user_id).first()
+    if not student:
+        print(f"No student found with user_id: {user_id}")
+        return
+
+    student_id = student.student_id
+    
     # 查找是否已经存在相同日期和场景的记录
     study_record = StudentStudyRecord.query.filter_by(
-        student_id=user_id,
+        student_id=student_id,
         scenario_id=scenario.scenario_id,
         study_date=study_date
     ).first()
@@ -89,7 +98,7 @@ def add_message():
         # 如果记录不存在，则创建新的记录
         duration_minutes = (datetime.combine(study_date, end_time) - datetime.combine(study_date, start_time)).seconds // 60
         study_record = StudentStudyRecord(
-            student_id=user_id,
+            student_id=student_id,
             scenario_id=scenario.scenario_id,
             study_date=study_date,
             start_time=start_time,
