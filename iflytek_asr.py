@@ -120,7 +120,13 @@ class RequestApi(object):
         if result["ok"] == 0:
             print("{} success:".format(apiname) + str(result))
             if(apiname == '/getResult'):
-                a2tResult = json.loads(result['data'])[0]['onebest']
+                # 解析 JSON 数据
+                data_list = json.loads(result['data'])
+
+                # 遍历每个项目并提取 'onebest' 字段
+                onebest_results = [item['onebest'] for item in data_list]
+                # 组合成一个字符串
+                a2tResult = onebest_results.join(onebest_results)
             
             return result
         else:
