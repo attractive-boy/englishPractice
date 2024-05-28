@@ -11,15 +11,15 @@
     </el-menu>
   </div>
 </template>
-<script setup lang="ts">
+<script setup>
 
 import { ref, shallowRef, onBeforeUnmount, defineEmits, watch, getCurrentInstance } from 'vue'
 
 import { router } from '@/router/index'
 const role = localStorage.getItem('role')
-const title = ref( role == 'student' ? '英语练习平台' : '英语练习管理系统' )
+const title = ref(  )
 
-const activeIndex = ref( role == 'student' ? '英语练习平台' : '/StudentManager' )
+const activeIndex = ref('/Chat' )
 
 watch(
   () => router.currentRoute.value.path,
@@ -29,18 +29,18 @@ watch(
   { immediate: true, deep: true }
 )
 
-const handleSelect = (key: string, keyPath: string[]) => {
+const handleSelect = (key) => {
   router.push(key)
 }
 
-let routes: any
+let routes
 
 const changeRoute = () => {
-  routes = router.getRoutes().filter((route: any) => {
+  routes = router.getRoutes().filter((route) => {
     return route.meta && route.meta.title && route.meta.role.includes(role)
   })
 
-  routes = routes.sort((a: { meta: { orderNum: number; }; }, b: { meta: { orderNum: number; }; }) => {
+  routes = routes.sort((a, b) => {
     return a.meta.orderNum - b.meta.orderNum
   })
 }

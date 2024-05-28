@@ -1,15 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_login import LoginManager
 from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 from models import db
-from auth import auth_bp
-from student import student_bp
-from teacher import teacher_bp
-from scenario import scenario_bp
-from study_record import study_record_bp
-from text_score import text_score_bp
 from chat import chat_bp
-from transcribe import transcribe_bp
+from user import user_bp
+from plan import plan_bp
+from reports import report_bp
+from log import api_log_bp
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -26,14 +25,13 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Enable cross-site cookies
 Session(app)
 db.init_app(app)
 
-app.register_blueprint(auth_bp, url_prefix='/api/auth')
-app.register_blueprint(student_bp, url_prefix='/api')
-app.register_blueprint(teacher_bp, url_prefix='/api')
-app.register_blueprint(scenario_bp, url_prefix='/api')
-app.register_blueprint(study_record_bp, url_prefix='/api')
-app.register_blueprint(text_score_bp, url_prefix='/api')
-app.register_blueprint(chat_bp, url_prefix='/api')
-app.register_blueprint(transcribe_bp, url_prefix='/api')
+login_manager = LoginManager(app)
+
+app.register_blueprint(user_bp)
+app.register_blueprint(chat_bp)
+app.register_blueprint(plan_bp)
+app.register_blueprint(report_bp)
+app.register_blueprint(api_log_bp)
 
 with app.app_context():
     db.create_all()

@@ -9,8 +9,26 @@
         <el-form-item prop="password">
           <el-input type="password" v-model="form.password" placeholder="密码"></el-input>
         </el-form-item>
+        <el-form-item v-if="isRegistering" prop="confirmPassword">
+          <el-input type="password" v-model="form.confirmPassword" placeholder="确认密码"></el-input>
+        </el-form-item>
+        <el-form-item v-if="isRegistering" prop="email">
+          <el-input v-model="form.email" placeholder="邮箱"></el-input>
+        </el-form-item>
+        <el-form-item v-if="isRegistering" prop="firstName">
+          <el-input v-model="form.firstName" placeholder="名字"></el-input>
+        </el-form-item>
+        <el-form-item v-if="isRegistering" prop="lastName">
+          <el-input v-model="form.lastName" placeholder="姓氏"></el-input>
+        </el-form-item>
+        <el-form-item v-if="isRegistering" prop="phoneNumber">
+          <el-input v-model="form.phoneNumber" placeholder="电话"></el-input>
+        </el-form-item>
+        <el-form-item v-if="isRegistering" prop="address">
+          <el-input v-model="form.address" placeholder="地址"></el-input>
+        </el-form-item>
         <el-form-item >
-          <el-button class="login-btn" type="primary" @click="login()">登录</el-button>
+          <el-button class="login-btn" type="primary" @click="isRegistering ? register() : login()">{{ isRegistering ? '注册' : '登录' }}</el-button>
         </el-form-item>
         <el-form-item class="switch-btn">
           <el-button @click="switchToPractice()">{{ switchText }}</el-button>
@@ -20,52 +38,59 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, getCurrentInstance  } from 'vue';
+<script setup>
+import { ref, getCurrentInstance } from 'vue';
 import { ElMessage } from 'element-plus';
-import { router } from '@/router/index';
+import { useRouter } from 'vue-router';
 
 const form = ref({
   username: '',
-  password: ''
+  password: '',
+  confirmPassword: '',
+  email: '',
+  firstName: '',
+  lastName: '',
+  phoneNumber: '',
+  address: ''
 });
 
-const title = ref("英语练习管理系统");
-const switchText = ref("切换到练习平台");
-
-const { proxy } = getCurrentInstance() as any;
+const title = ref("学科答疑系统");
+const switchText = ref("还没有账号？ 注册");
+const isRegistering = ref(false);
+const { proxy } = getCurrentInstance();
+const router = useRouter();
 
 // 登录方法
 const login = async () => {
   try {
     const response = await proxy.$http.post('/auth/login', form.value);
     ElMessage.success(response.data.message);
-    //本地存储 role 判断跳转
-    localStorage.setItem('role', response.data.role);
-    localStorage.setItem('user_id', response.data.user_id);
-    localStorage.setItem('username', response.data.username);
-
-    if (response.data.role == "student") {
-      router.push('/Communicate');
-    }else if (response.data.role == "admin") {
-      router.push('/StudentManager');
-    }else{
-      router.push('/UserInfo');
-    }
+    router.push('/dashboard');
   } catch (error) {
     ElMessage.error(error.response.data.message || '登录失败');
   }
 };
 
-// 切换到练习平台的方法
-const switchToPractice = () => {
-  if(title.value === "英语练习管理系统"){
-    title.value = "英语练习平台"
-    switchText.value = "切换到管理平台"
-  }else{
-    title.value = "英语练习管理系统"
-    switchText.value = "切换到练习平台"
+// 注册方法
+const register = async () => {
+  if (form.value.password !== form.value.confirmPassword) {
+    ElMessage.error('密码和确认密码不一致');
+    return;
   }
+
+  try {
+    const response = await proxy.$http.post('/auth/register', form.value);
+    ElMessage.success(response.data.message);
+    switchToPractice();
+  } catch (error) {
+    ElMessage.error(error.response.data.message || '注册失败');
+  }
+};
+
+// 切换登录和注册界面
+const switchToPractice = () => {
+  isRegistering.value = !isRegistering.value;
+  switchText.value = isRegistering.value ? "已有账号？ 登录" : "还没有账号？ 注册";
 };
 </script>
 
@@ -109,6 +134,10 @@ const switchToPractice = () => {
 .switch-btn {
   text-align: center;
   margin-top: 10px;
+}
+
+.switch-label {
+  margin-right: 10px;
 }
 
 .switch-btn :deep() .el-form-item__content .el-button {

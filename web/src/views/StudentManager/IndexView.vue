@@ -89,7 +89,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup >
 import { ref, onMounted,getCurrentInstance } from 'vue';
 import { ElMessage } from 'element-plus';
 import { router } from '@/router/index';

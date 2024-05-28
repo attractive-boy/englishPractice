@@ -10,7 +10,7 @@
     </el-container>
   </el-container>
 </template>
-<script lang="ts" setup>
+<script  setup>
 import { RouterView } from 'vue-router'
 import HeaderComponent from '@/components/Header/HeaderComponent.vue'
 
