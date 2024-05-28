@@ -24,6 +24,7 @@
     "element-plus": "^2.6.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
+    "vue-advanced-chat": "^2.1.0",
     "vue-router": "^4.3.0",
     "vue3-eventbus": "^2.0.0"
   },

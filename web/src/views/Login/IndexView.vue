@@ -42,6 +42,9 @@ const login = async () => {
     ElMessage.success(response.data.message);
     //本地存储 role 判断跳转
     localStorage.setItem('role', response.data.role);
+    localStorage.setItem('user_id', response.data.user_id);
+    localStorage.setItem('username', response.data.username);
+
     if (response.data.role == "student") {
       router.push('/Communicate');
     }else if (response.data.role == "admin") {

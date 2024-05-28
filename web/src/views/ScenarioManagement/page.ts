@@ -1,6 +1,6 @@
 export default {
-  title: '学生管理',
-  orderNum: 2,
+  title: '场景设置',
+  orderNum: 4,
   keepAlive: true,
   role:['admin','teacher']
 }

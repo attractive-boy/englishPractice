@@ -1,35 +1,35 @@
 <template>
     <div class="container">
-        <el-card class="edit-teacher-profile">
-            <h2 class="title">修改个人信息</h2>
-            <el-form :model="teacher" ref="teacherForm" label-width="120px" class="form">
+        <el-card class="edit-student-profile">
+            <h2 class="title">修改学生信息</h2>
+            <el-form :model="student" ref="studentForm" label-width="120px" class="form">
                 <el-form-item label="姓名" prop="name">
-                    <el-input v-model="teacher.name" placeholder="请输入姓名"></el-input>
+                    <el-input v-model="student.name" placeholder="请输入姓名"></el-input>
                 </el-form-item>
                 <el-form-item label="性别" prop="gender">
-                    <el-select v-model="teacher.gender" placeholder="请选择性别">
+                    <el-select v-model="student.gender" placeholder="请选择性别">
                         <el-option label="男" value="male"></el-option>
                         <el-option label="女" value="female"></el-option>
                         <el-option label="其他" value="other"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="学院" prop="college">
-                    <el-input v-model="teacher.college" placeholder="请输入学院"></el-input>
+                    <el-input v-model="student.college" placeholder="请输入学院"></el-input>
                 </el-form-item>
-                <el-form-item label="教师编号" prop="teacher_number">
-                    <el-input v-model="teacher.teacher_number" placeholder="请输入教师编号"></el-input>
+                <el-form-item label="专业" prop="major">
+                    <el-input v-model="student.major" placeholder="请输入专业"></el-input>
+                </el-form-item>
+                <el-form-item label="班级" prop="class_name">
+                    <el-input v-model="student.class_name" placeholder="请输入班级"></el-input>
                 </el-form-item>
                 <el-form-item label="电话" prop="phone">
-                    <el-input v-model="teacher.phone" placeholder="请输入电话"></el-input>
+                    <el-input v-model="student.phone" placeholder="请输入电话"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱" prop="email">
-                    <el-input v-model="teacher.email" placeholder="请输入邮箱"></el-input>
-                </el-form-item>
-                <el-form-item label="负责班级" prop="class_responsible">
-                    <el-input v-model="teacher.class_responsible" placeholder="请输入负责班级"></el-input>
+                    <el-input v-model="student.email" placeholder="请输入邮箱"></el-input>
                 </el-form-item>
                 <div class="form-actions">
-                    <el-button type="primary" @click="updateTeacherProfile">保存</el-button>
+                    <el-button type="primary" @click="updateStudentProfile">保存</el-button>
                     <el-button @click="resetForm">取消</el-button>
                     <el-button type="warning" @click="showPasswordDialog">修改密码</el-button>
                 </div>
@@ -46,7 +46,8 @@
                     <el-input type="password" v-model="passwordForm.new_password" placeholder="请输入新密码"></el-input>
                 </el-form-item>
                 <el-form-item label="确认新密码" prop="confirm_new_password">
-                    <el-input type="password" v-model="passwordForm.confirm_new_password" placeholder="请确认新密码"></el-input>
+                    <el-input type="password" v-model="passwordForm.confirm_new_password"
+                        placeholder="请确认新密码"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -56,78 +57,76 @@
         </el-dialog>
     </div>
 </template>
-  
+
 <script setup lang="ts">
 import { ref, onMounted, getCurrentInstance } from 'vue';
 import { ElMessage } from 'element-plus';
 
 const { proxy } = getCurrentInstance() as any;
 
-const teacher = ref({
+const student = ref({
     name: '',
     gender: '',
     college: '',
-    teacher_number: '',
+    major: '',
+    class_name: '',
     phone: '',
-    email: '',
-    class_responsible: ''
+    email: ''
 });
 
-const fetchTeacherProfile = async () => {
+const fetchStudentProfile = async () => {
     try {
-        const response = await proxy.$http.get('/teachers/profile');
-        teacher.value = response.data;
+        const response = await proxy.$http.get('/students/profile');
+        student.value = response.data;
     } catch (error) {
-        ElMessage.error('获取教师信息失败');
+        ElMessage.error('获取学生信息失败');
     }
 };
 
-const updateTeacherProfile = async () => {
+const updateStudentProfile = async () => {
     try {
-        await proxy.$http.put('/teachers/profile', teacher.value);
-        ElMessage.success('个人信息更新成功');
+        await proxy.$http.put('/students/profile', student.value);
+        ElMessage.success('学生信息更新成功');
     } catch (error) {
-        ElMessage.error('更新个人信息失败');
+        ElMessage.error('更新学生信息失败');
     }
 };
 
 const resetForm = () => {
-    fetchTeacherProfile();
+    fetchStudentProfile();
 };
 
 const showPasswordDialog = () => {
-  passwordDialogVisible.value = true;
+    passwordDialogVisible.value = true;
 };
 
-
 const passwordForm = ref({
-  current_password: '',
-  new_password: '',
-  confirm_new_password: ''
+    current_password: '',
+    new_password: '',
+    confirm_new_password: ''
 });
 
 const passwordDialogVisible = ref(false);
 
 const updatePassword = async () => {
-  if (passwordForm.value.new_password !== passwordForm.value.confirm_new_password) {
-    ElMessage.error('新密码和确认新密码不匹配');
-    return;
-  }
-  try {
-    await proxy.$http.put('/teachers/password', passwordForm.value);
-    ElMessage.success('密码更新成功');
-    passwordDialogVisible.value = false;
-  } catch (error) {
-    ElMessage.error('密码更新失败');
-  }
+    if (passwordForm.value.new_password !== passwordForm.value.confirm_new_password) {
+        ElMessage.error('新密码和确认新密码不匹配');
+        return;
+    }
+    try {
+        await proxy.$http.put('/students/password', passwordForm.value);
+        ElMessage.success('密码更新成功');
+        passwordDialogVisible.value = false;
+    } catch (error) {
+        ElMessage.error('密码更新失败');
+    }
 };
 
-
 onMounted(() => {
-    fetchTeacherProfile();
+    fetchStudentProfile();
 });
 </script>
-  
+
 <style scoped>
 .container {
     display: flex;
@@ -138,7 +137,7 @@ onMounted(() => {
     padding: 20px;
 }
 
-.edit-teacher-profile {
+.edit-student-profile {
     width: 600px;
     padding: 30px;
     border-radius: 10px;
@@ -189,4 +188,3 @@ onMounted(() => {
     border-color: #f6d365;
 }
 </style>
-  
