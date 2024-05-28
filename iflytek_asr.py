@@ -126,7 +126,7 @@ class RequestApi(object):
                 # 遍历每个项目并提取 'onebest' 字段
                 onebest_results = [item['onebest'] for item in data_list]
                 # 组合成一个字符串
-                a2tResult = onebest_results.join(onebest_results)
+                a2tResult = " ".join(onebest_results)
             
             return result
         else:
