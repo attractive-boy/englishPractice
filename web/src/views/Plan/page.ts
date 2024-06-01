@@ -1,6 +1,5 @@
 export default {
-  title: '场景设置',
+  title: '制定计划模块',
   orderNum: 4,
   keepAlive: true,
-  role:['admin','teacher']
 }

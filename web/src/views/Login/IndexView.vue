@@ -63,7 +63,7 @@ const router = useRouter();
 // 登录方法
 const login = async () => {
   try {
-    const response = await proxy.$http.post('/auth/login', form.value);
+    const response = await proxy.$http.post('/user/login', form.value);
     ElMessage.success(response.data.message);
     router.push('/dashboard');
   } catch (error) {
@@ -79,7 +79,7 @@ const register = async () => {
   }
 
   try {
-    const response = await proxy.$http.post('/auth/register', form.value);
+    const response = await proxy.$http.post('/user/register', form.value);
     ElMessage.success(response.data.message);
     switchToPractice();
   } catch (error) {

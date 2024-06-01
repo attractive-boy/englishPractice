@@ -9,7 +9,7 @@ user_bp = Blueprint('user', __name__)
 @user_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    hashed_password = generate_password_hash(data['password'], method='sha256')
+    hashed_password = data['password']
     new_user = User(username=data['username'], email=data['email'], password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
@@ -19,7 +19,7 @@ def register():
 def login():
     data = request.get_json()
     user = User.query.filter_by(username=data['username']).first()
-    if not user or not check_password_hash(user.password, data['password']):
+    if not user or not user.password == data['password']:
         return jsonify({'message': 'Login failed'}), 401
     login_user(user)
     return jsonify({'message': 'Logged in successfully'}), 200

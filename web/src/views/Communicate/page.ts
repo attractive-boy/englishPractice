@@ -1,6 +1,5 @@
 export default {
-  title: '对话交流',
+  title: '答疑模块',
   orderNum: 3,
   keepAlive: true,
-  role:['student']
 }

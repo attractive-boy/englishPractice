@@ -87,14 +87,16 @@ class Plan(db.Model):
 class LearningReport(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
+    learning_report = db.Column(db.Text, nullable=False)
+    learning_suggestions = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def to_dict(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'content': self.content,
+            'learning_report': self.learning_report,
+            'learning_suggestions': self.learning_suggestions,
             'created_at': self.created_at
         }
 

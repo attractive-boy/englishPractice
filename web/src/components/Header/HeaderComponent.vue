@@ -2,7 +2,7 @@
   <div style="app-header">
     <el-menu :default-active="activeIndex" mode="horizontal" :ellipsis="false" class="el-menu" @select="handleSelect">
       <el-menu-item index="0" class="header-title">
-        <h4>{{ title }}</h4>
+        <h4>学科答疑系统</h4>
       </el-menu-item>
       <div class="flex-grow" />
       <el-menu-item v-for="(item, index) in routes" :key="index" :index="item.path">{{
@@ -37,7 +37,7 @@ let routes
 
 const changeRoute = () => {
   routes = router.getRoutes().filter((route) => {
-    return route.meta && route.meta.title && route.meta.role.includes(role)
+    return route.meta && route.meta.title
   })
 
   routes = routes.sort((a, b) => {

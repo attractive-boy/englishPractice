@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-from models import db
+from models import User, db
 from chat import chat_bp
 from user import user_bp
 from plan import plan_bp
@@ -27,11 +27,15 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 
-app.register_blueprint(user_bp)
-app.register_blueprint(chat_bp)
-app.register_blueprint(plan_bp)
-app.register_blueprint(report_bp)
-app.register_blueprint(api_log_bp)
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+app.register_blueprint(user_bp, url_prefix='/api/user')
+app.register_blueprint(chat_bp, url_prefix='/api')
+app.register_blueprint(plan_bp, url_prefix='/api')
+app.register_blueprint(report_bp, url_prefix='/api')
+app.register_blueprint(api_log_bp, url_prefix='/api')
 
 with app.app_context():
     db.create_all()
