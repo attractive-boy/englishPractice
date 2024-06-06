@@ -2,7 +2,7 @@
   <div style="app-header">
     <el-menu :default-active="activeIndex" mode="horizontal" :ellipsis="false" class="el-menu" @select="handleSelect">
       <el-menu-item index="0" class="header-title">
-        <h4>学科答疑系统</h4>
+        <h4>智能答疑系统</h4>
       </el-menu-item>
       <div class="flex-grow" />
       <el-menu-item v-for="(item, index) in routes" :key="index" :index="item.path">{{

@@ -35,6 +35,7 @@
 import { ref, onMounted, getCurrentInstance } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
+import { ElLoading } from 'element-plus'
 
 const { proxy } = getCurrentInstance();
 
@@ -66,6 +67,11 @@ const openDialog = async (report) => {
 };
 
 const generateReport = async () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)',
+  })
   try {
     const response = await proxy.$http.post('/reports/generate');
     currentReport.value = response.data;
@@ -78,6 +84,7 @@ const generateReport = async () => {
       console.error('生成报告时出错:', error);
     }
   }
+  loading.close()
 };
 
 const saveReport = async () => {

@@ -58,6 +58,7 @@
 import { ref, onMounted, getCurrentInstance } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
+import { ElLoading } from 'element-plus'
 
 const { proxy } = getCurrentInstance();
 
@@ -94,6 +95,11 @@ const openDialog = async (plan) => {
 };
 
 const generatePlan = async () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: 'Loading',
+    background: 'rgba(0, 0, 0, 0.7)',
+  })
   try {
     const response = await proxy.$http.post('/plans/generate');
     currentPlan.value = response.data
@@ -106,6 +112,7 @@ const generatePlan = async () => {
       console.error('生成计划时出错:', error);
     }
   }
+  loading.close();
 };
 
 

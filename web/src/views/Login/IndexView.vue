@@ -54,7 +54,7 @@ const form = ref({
   address: ''
 });
 
-const title = ref("学科答疑系统");
+const title = ref("智能答疑系统");
 const switchText = ref("还没有账号？ 注册");
 const isRegistering = ref(false);
 const { proxy } = getCurrentInstance();

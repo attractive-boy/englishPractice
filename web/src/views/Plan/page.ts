@@ -1,5 +1,5 @@
 export default {
-  title: '制定计划模块',
+  title: '制定计划功能',
   orderNum: 4,
   keepAlive: true,
 }
